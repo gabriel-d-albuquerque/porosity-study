@@ -75,7 +75,7 @@ p.PartitionFaceByShortestPath(faces=f[0:], point1=p.InterestingPoint(
 # Meshing
 p = mdb.models['Model-1'].parts['Part-1']
 p.seedPart(size=0.01, deviationFactor=0.1, minSizeFactor=0.1)
-p.generateMesh()
+p.generateMesh(elemShape = 'TRI')
 
 # Creating job
 mdb.Job(name='porosidade_7', model='Model-1', description='', type=ANALYSIS, 
@@ -90,7 +90,7 @@ mdb.Job(name='porosidade_7', model='Model-1', description='', type=ANALYSIS,
 mdb.jobs['porosidade_7'].submit(consistencyChecking=OFF)
 mdb.jobs['porosidade_7'].waitForCompletion()
 
-# Operating on XY data
+# Operating on ODB data
 path = './'
 filename = 'porosidade_7.odb'
 

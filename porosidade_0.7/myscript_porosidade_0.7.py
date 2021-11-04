@@ -74,8 +74,10 @@ p.PartitionFaceByShortestPath(faces=f[0:], point1=p.InterestingPoint(
 
 # Meshing
 p = mdb.models['Model-1'].parts['Part-1']
+f = p.faces
 p.seedPart(size=0.01, deviationFactor=0.1, minSizeFactor=0.1)
-p.generateMesh(elemShape = 'TRI')
+p.setMeshControls(regions=f[0:], elemShape=TRI)
+p.generateMesh()
 
 # Creating job
 mdb.Job(name='porosidade_7', model='Model-1', description='', type=ANALYSIS, 

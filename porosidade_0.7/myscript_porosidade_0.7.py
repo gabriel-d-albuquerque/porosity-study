@@ -4,6 +4,7 @@ from caeModules import *
 from driverUtils import executeOnCaeStartup
 executeOnCaeStartup()
 import os
+import numpy as np
 
 # Creating part
 s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__', sheetSize=200.0)
@@ -38,6 +39,9 @@ a.Instance(name='Part-1-1', part=p, dependent=ON)
 
 # Creating step
 mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial')
+mdb.models['Model-1'].fieldOutputRequests['F-Output-1'].setValues(variables=(
+    'S', 'PE', 'PEEQ', 'PEMAG', 'LE', 'U', 'RF', 'CF', 'CSTRESS', 'CDISP', 
+    'EVOL'))
 
 # Creating BC for side AD
 e1 = a.instances['Part-1-1'].edges
@@ -106,6 +110,46 @@ for node in myodb.rootAssembly.nodeSets['SET-2'].nodes[0]:
 RFx = 0
 for index in nodeList:
     RFx += myodb.steps['Step-1'].frames[-1].fieldOutputs['RF'].values[index].data[0]
+
+step_name = myodb.steps.items()[0][0] # get the step name
+
+if (myodb.steps[step_name].frames[-1].fieldOutputs['E']): # get the strains
+    E11, E22, E33, E12 = 0.0, 0.0, 0.0, 0.0
+    for item in myodb.steps[step_name].frames[-1].fieldOutputs['E'].values:
+        E11 += item.data[0]
+        E22 += item.data[1]
+        E33 += item.data[2]
+        E12 += item.data[3]
+
+if (myodb.steps[step_name].frames[-1].fieldOutputs['S']): # get the stress
+    S11, S22, S33, S12 = 0.0, 0.0, 0.0, 0.0
+    for item in myodb.steps[step_name].frames[-1].fieldOutputs['S'].values:
+        S11 += item.data[0]
+        S22 += item.data[1]
+        S33 += item.data[2]
+        S12 += item.data[3]
+
+v = mdb.models['Model-1'].materials['aluminio'].elastic.table[0][1]
+
+Ex = (S11-v*S22)/E11
+Ey = (S22-v*S11)/E22
+G  = S12/(2*E12)
+#Dúvidas:
+#   - E33 nulo no EPT?
+#   - Ex, Ey iguais ao valor de E sem a porosidade;
+#   - G = E/[2*(1+v)];
+#   - S11 = RFx/A => E = S11/E11.
+
+with open('strain_stress_07.txt', 'w') as file:
+    file.write('ij |  E  |  S \n')
+    file.write('(11; '+str(E11)+'; '+str(S11)+') \n')
+    file.write('(22; '+str(E22)+'; '+str(S22)+') \n')
+    file.write('(33; '+str(E33)+'; '+str(S33)+') \n')
+    file.write('(12; '+str(E12)+'; '+str(S12)+') \n')
+    file.write('RFx = '+str(RFx)+'\n')
+    file.write('Ex  = '+str(Ex)+'\n')
+    file.write('Ey  = '+str(Ey)+'\n')
+    file.write('G   = '+str(G)+'\n')
 
 # Save the model
 mdb.saveAs(pathName='./estudo_porosidade_0.7.cae')

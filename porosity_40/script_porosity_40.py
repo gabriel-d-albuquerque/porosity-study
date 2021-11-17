@@ -7,7 +7,7 @@ import os
 import numpy as np
 
 # Assign porosity of study
-P = 0.1
+P = 0.4
 # Calculates the radius of the circular porus
 R = np.sqrt(P/np.pi)
 # Model name

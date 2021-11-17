@@ -15,7 +15,7 @@ def residual(p, S_fem, EE_fem):
     EE = strain_model(p, S_fem)
     return EE_fem.T.flatten() - EE
 
-with open('porosidade_0.7\strain_stress_07.txt') as f:
+with open('porosity_70\strain_stress_70.txt') as f:
     E11=f.readline()
     E22=f.readline()
     E33=f.readline()

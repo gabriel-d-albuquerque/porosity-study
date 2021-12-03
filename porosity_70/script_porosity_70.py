@@ -144,10 +144,6 @@ if (myodb.steps[step_name].frames[-1].fieldOutputs['E']): # get the strains
         E33 += evol[i]*item.data[2]
         E12 += evol[i]*item.data[3]
         i += 1
-    E11 = E11/total_v
-    E22 = E22/total_v
-    E33 = E33/total_v
-    E12 = E12/total_v
 
 if (myodb.steps[step_name].frames[-1].fieldOutputs['S']): # get the stress
     S11, S22, S33, S12 = 0.0, 0.0, 0.0, 0.0
@@ -158,10 +154,6 @@ if (myodb.steps[step_name].frames[-1].fieldOutputs['S']): # get the stress
         S33 += evol[i]*item.data[2]
         S12 += evol[i]*item.data[3]
         i += 1
-    S11 = S11/total_v
-    S22 = S22/total_v
-    S33 = S33/total_v
-    S12 = S12/total_v
 
 #Duvidas:
 #   - E33 nulo no EPT?
@@ -178,7 +170,7 @@ with open(FILE_NAME + '.txt', 'w') as file:
     file.write('S22='+str(S22)+'\n')
     file.write('S33='+str(S33)+'\n')
     file.write('S12='+str(S12)+'\n')
-    file.write('RFx='+str(RFx))
+    file.write('P='+str(P))
 
 # Save the model
 mdb.saveAs(pathName='./' + MODEL_NAME + '.cae')

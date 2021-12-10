@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy.core.function_base import linspace
 from scipy.optimize import least_squares
 from subprocess import Popen
 
@@ -14,9 +15,25 @@ def strain_model(p, S):
     EE = A.dot(S)
     return EE.T.flatten()
     
-def residual(p, S_fem, EE_fem):
+def residual_strain(p, S_fem, EE_fem):
     EE = strain_model(p, S_fem)
     return EE_fem.T.flatten() - EE
+
+def exponential_model(m, P):
+    E_rel = np.exp(-m*P)
+    return E_rel
+
+def differential_model(m, P):
+    E_rel = (1-P)**m
+    return E_rel
+
+def mori_tanaka_model(m, P):
+    E_rel = (1 + (m*P)/(1 - P))**(-1)
+    return E_rel
+
+def generalized_residual(m, P, E_rel_fem, T):
+    E = T(m, P)
+    return E_rel_fem - E
 
 fd = ['.\porosity_0', '.\porosity_10', '.\porosity_20', '.\porosity_30', '.\porosity_40', '.\porosity_50', '.\porosity_60', '.\porosity_70']
 fl = ['\strain_stress_0.txt', '\strain_stress_10.txt', '\strain_stress_20.txt', '\strain_stress_30.txt', '\strain_stress_40.txt', '\strain_stress_50.txt', '\strain_stress_60.txt', '\strain_stress_70.txt']
@@ -43,22 +60,43 @@ for (folder, file) in zip(fd, fl):
     S12 = float(S12[4:])
     P = float(P[2:])
     S_fem = np.array([S11, S22, S12])
-    E_fem = np.array([E11, E22, E12])
-    E_input = np.array([0.01, E22, 0])
-    resp = least_squares(residual, (10000, 0.2), bounds=([1000, 0.05], [80000, 0.49]), args=(S_fem, E_input), gtol=1e-14)
+    EE_fem = np.array([E11, E22, E12])
+    EE_input = np.array([0.01, E22, 0])
+    resp = least_squares(residual_strain, (10000, 0.2), bounds=([1000, 0.05], [80000, 0.49]), args=(S_fem, EE_input), gtol=1e-14)
     coeff.append([resp.x, P])
 
 x=[]
 y=[]
 for elem in coeff:
     x.append(elem[1])
-    y.append(elem[0][0])
-print(x)
-print(y)
+    y.append(elem[0][0]/coeff[0][0][0])
+x_values = linspace(0, 1, 100)
+x = np.array(x)
+y = np.array(y)
+
+relation_exponential = least_squares(generalized_residual, (1, ), bounds=([-20], [20]), args=(x, y, exponential_model), gtol=1e-14)
+m_exponential = relation_exponential.x
+exponential_values = np.exp(-m_exponential*x_values)
+
+relation_differential = least_squares(generalized_residual, (1, ), bounds=([-20], [20]), args=(x, y, differential_model), gtol=1e-14)
+m_differential = relation_differential.x
+differential_values = (1 - x_values)**m_differential
+
+relation_mt = least_squares(generalized_residual, (1, ), bounds=([-20], [20]), args=(x, y, mori_tanaka_model), gtol=1e-14)
+m_mt = relation_mt.x
+mt_values = (1+(m_mt*x_values)/(1-x_values))**(-1)
+
+voigt_values = 1-x_values
 
 fig, ax = plt.subplots()
-ax.scatter(x, y, marker=(5, 2))
+ax.scatter(x, y, marker=(5, 2), label='FEM model', color='red')
+ax.plot(x_values, exponential_values, linewidth=1.0, label='Exponential', color='blue')
+ax.plot(x_values, differential_values, linewidth=1.0, label='Differential', color= 'purple')
+ax.plot(x_values, mt_values, linewidth=1.0, label='Mori-Tanaka', color= 'green')
+ax.plot(x_values, voigt_values, linewidth=1.0, label='Voigt Bound', color= 'orange')
+ax.legend()
 ax.set_title("Effect of porosity on elastic modulus")
 ax.set_xlabel("Porosity")
-ax.set_ylabel("Elastic modulus")
+ax.set_ylabel("Elastic modulus ratio")
+ax.grid(color="gray", linestyle="--", linewidth=0.7)
 plt.show()

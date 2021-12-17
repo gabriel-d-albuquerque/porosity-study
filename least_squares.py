@@ -31,6 +31,14 @@ def mori_tanaka_model(m, P):
     E_rel = (1 + (m*P)/(1 - P))**(-1)
     return E_rel
 
+def pabst_model(m, P):
+    E_rel = np.exp(-m*P/(1-P))
+    return E_rel
+
+def hasselman_model(a, P):
+    E_rel = 1+(a*P)/(1-(a+1)*P)
+    return E_rel
+
 def generalized_residual(m, P, E_rel_fem, T):
     E = T(m, P)
     return E_rel_fem - E
@@ -86,14 +94,27 @@ relation_mt = least_squares(generalized_residual, (1, ), bounds=([-20], [20]), a
 m_mt = relation_mt.x
 mt_values = (1+(m_mt*x_values)/(1-x_values))**(-1)
 
+relation_pabst = least_squares(generalized_residual, (1, ), bounds=([-20], [20]), args=(x, y, pabst_model), gtol=1e-14)
+m_pabst = relation_pabst.x
+pabst_values = np.exp(-m_pabst*x_values/(1-x_values))
+
+relation_hasselman = least_squares(generalized_residual, (-1, ), bounds=([-20], [20]), args=(x, y, hasselman_model), gtol=1e-14)
+a_hasselman = relation_hasselman.x
+hasselman_values = 1+(a_hasselman*x_values)/(1-(a_hasselman+1)*x_values)
+
 voigt_values = 1-x_values
+
+ra_values = (1-x_values)**2/(1+2*x_values-3*0.33*x_values)
 
 fig, ax = plt.subplots()
 ax.scatter(x, y, marker=(5, 2), label='FEM model', color='red')
 ax.plot(x_values, exponential_values, linewidth=1.0, label='Exponential', color='blue')
 ax.plot(x_values, differential_values, linewidth=1.0, label='Differential', color= 'purple')
-ax.plot(x_values, mt_values, linewidth=1.0, label='Mori-Tanaka', color= 'green')
+ax.plot(x_values, mt_values, linewidth=1.0, label='Mori-Tanaka', color= 'lime')
 ax.plot(x_values, voigt_values, linewidth=1.0, label='Voigt Bound', color= 'orange')
+ax.plot(x_values, pabst_values, linewidth=1.0, label='Pabst', color='darkgreen')
+ax.plot(x_values, hasselman_values, linewidth=1.0, label='Hasselman', color='cyan')
+ax.plot(x_values, ra_values, linewidth=1.0, label='Ramakrishnan-Arunachalam', color='crimson')
 ax.legend()
 ax.set_title("Effect of porosity on elastic modulus")
 ax.set_xlabel("Porosity")

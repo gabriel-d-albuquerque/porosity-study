@@ -17,5 +17,5 @@
 *.dmp
 *.txt
 
-# ignore excel file used for plotting
-*.xlsx
+# ignore plt
+*.pdf

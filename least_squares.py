@@ -43,12 +43,11 @@ def generalized_residual(m, P, E_rel_fem, T):
     E = T(m, P)
     return E_rel_fem - E
 
-fd = ['.\porosity_0', '.\porosity_10', '.\porosity_20', '.\porosity_30', '.\porosity_40', '.\porosity_50', '.\porosity_60', '.\porosity_70']
-fl = ['\strain_stress_0.txt', '\strain_stress_10.txt', '\strain_stress_20.txt', '\strain_stress_30.txt', '\strain_stress_40.txt', '\strain_stress_50.txt', '\strain_stress_60.txt', '\strain_stress_70.txt']
+fl = ['\strain_stress_0.txt', '\strain_stress_1.txt', '\strain_stress_2.txt', '\strain_stress_3.txt', '\strain_stress_4.txt', '\strain_stress_5.txt', '\strain_stress_6.txt', '\strain_stress_7.txt']
 
 coeff =[]
-for (folder, file) in zip(fd, fl):
-    with open(folder + file) as f:
+for file in fl:
+    with open('.\porosity_study' + file) as f:
         E11=f.readline()
         E22=f.readline()
         E33=f.readline()

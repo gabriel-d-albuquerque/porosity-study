@@ -31,4 +31,4 @@
 *.py~
 
 # ignore local folder
-./gmsh/backup/*
+gmsh/backup/

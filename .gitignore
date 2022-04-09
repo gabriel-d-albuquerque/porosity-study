@@ -22,3 +22,13 @@
 
 # ignore vim files
 *.swp
+
+# ignore compiled files
+*.pyc
+
+# ignore temporary files
+*.un~
+*.py~
+
+# ignore local folder
+backup/*

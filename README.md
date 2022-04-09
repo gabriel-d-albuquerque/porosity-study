@@ -1,7 +1,7 @@
 # What is it about?
 The codes in this repository are part of a project patronized by the University of São Paulo (USP) and developed by the undergraduate student in Aeronautical Engineering Gabriel Delgado Albuquerque, alongside the aid and supervision of Dr. Prof. Ricardo Afonso Angélico, of the Aeronautical Engineering Department of the University of São Paulo.
 
-The core objective of the research is to develop a computational routine able to obtain the effective macroscopic properties of refractory materials. This will be done through the generation of artificial microstructures using a routine developed in Python and the softwares Neper and GMash. Afterwards, the models shall be loaded in the finite elements software Abaqus for the application of the periodic boundary conditions and model analysis.
+The core objective of the research is to develop a computational routine able to obtain the effective macroscopic properties of refractory materials. This will be done through the generation of artificial microstructures using a routine developed in Python and the softwares Neper and gmsh. Afterwards, the models shall be loaded in the finite elements software Abaqus for the application of the periodic boundary conditions and model analysis.
 
 # How to use it?
 

@@ -1,10 +1,14 @@
 import sys
 from odbAccess import *
 
-if 'abaqusConstants' not in sys.modules:
+if 'abaqus' not in sys.modules:
+    from abaqus import *
     from abaqusConstants import *
+    from caeModules import *
+    from driverUtils import executeOnCaeStartup
+    executeOnCaeStartup()
 
-def getState(file, out_name, P):
+def getState(file, out_name, P, FILE_NAME):
     myodb = openOdb(file)
     
     step_name = myodb.steps.items()[0][0] # get the step name
@@ -44,4 +48,5 @@ def getState(file, out_name, P):
         fl.write('S22='+str(S22)+'\n')
         fl.write('S33='+str(S33)+'\n')
         fl.write('S12='+str(S12)+'\n')
-        fl.write('P='+str(P))
+        fl.write('P='+str(P)+'\n')
+        fl.write('name='+FILE_NAME)

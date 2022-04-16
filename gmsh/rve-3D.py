@@ -52,7 +52,7 @@ def create_rve(P, domain, x_c, y_c, z_c, mesh_size_factor, path, model):
         gmsh.finalize()
     return
 
-P = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
+P = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
 domain = [0, 1, 0, 1, 0, 1]
 x_c = [0, 1, 0, 1, 0, 0, 1, 1, 0.5]
 y_c = [0, 0, 1, 1, 0, 1, 1, 0, 0.5]
@@ -62,12 +62,12 @@ path = r'.\models'
 
 create_rve(P, domain, x_c, y_c, z_c, mesh_size_factor, path, model = '2')
 
-P = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+P = [0, 0.1, 0.2, 0.3, 0.4, 0.5]
 domain = [0, 1, 0, 1, 0, 1]
 x_c = [0.5]
 y_c = [0.5]
 z_c = [0.5]
-mesh_size_factor = 1e-2
+mesh_size_factor = 2e-2
 path = r'.\models'
 
 create_rve(P, domain, x_c, y_c, z_c, mesh_size_factor, path, model = '1')

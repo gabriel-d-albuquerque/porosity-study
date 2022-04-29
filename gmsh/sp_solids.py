@@ -10,7 +10,7 @@ gmsh.model.add("solidos-especiais")
 def createPolygon(xyz_poly):
     i_p = 1
     for p in xyz_poly:
-        last_point = gmsh.model.occ.addPoint(p[0], p[1], p[2], lc)
+        last_point = gmsh.model.occ.addPoint(p[0], p[1], p[2])
         i_p += 1
 
     i_l = 1
@@ -27,7 +27,6 @@ def createPolygon(xyz_poly):
     return polygon
 
 L = 1
-lc = 1e-2
 
 xyz_hex = [[np.sqrt(2)*L, 0, np.sqrt(2)*L/2],
            [np.sqrt(2)*L/2, 0, np.sqrt(2)*L],
@@ -36,6 +35,7 @@ xyz_hex = [[np.sqrt(2)*L, 0, np.sqrt(2)*L/2],
            [np.sqrt(2)*L/2, np.sqrt(2)*L, 0],
            [np.sqrt(2)*L, np.sqrt(2)*L/2, 0]]
 hexagon = createPolygon(xyz_hex)
+x_hex, y_hex, z_hex = gmsh.model.occ.getCenterOfMass(2, hexagon)
 
 xyz_trian = [[np.sqrt(2)*L/2, 0, np.sqrt(2)*L],
              [0, 0, np.sqrt(2)*L],
@@ -58,20 +58,20 @@ fuse, map = gmsh.model.occ.fuse([(2, triangle)], fuse)
 xyz_trian = [[0, np.sqrt(2)*L/2, np.sqrt(2)*L],
              [0, np.sqrt(2)*L, np.sqrt(2)*L/2],
              [0, np.sqrt(2)*L, np.sqrt(2)*L]]
-triangle = createPolygon(xyz_trian)
-fuse, map = gmsh.model.occ.fuse([(2, triangle)], fuse)
+#triangle = createPolygon(xyz_trian)
+#fuse, map = gmsh.model.occ.fuse([(2, triangle)], fuse)
 
 xyz_trian = [[np.sqrt(2)*L/2, np.sqrt(2)*L, 0],
              [np.sqrt(2)*L, np.sqrt(2)*L/2, 0],
              [np.sqrt(2)*L, np.sqrt(2)*L, 0]]
-triangle = createPolygon(xyz_trian)
-fuse, map = gmsh.model.occ.fuse([(2, triangle)], fuse)
+#triangle = createPolygon(xyz_trian)
+#fuse, map = gmsh.model.occ.fuse([(2, triangle)], fuse)
 
 xyz_trian = [[np.sqrt(2)*L/2, 0, np.sqrt(2)*L],
              [np.sqrt(2)*L, 0, np.sqrt(2)*L/2],
              [np.sqrt(2)*L, 0, np.sqrt(2)*L]]
-triangle = createPolygon(xyz_trian)
-fuse, map = gmsh.model.occ.fuse([(2, triangle)], fuse)
+#triangle = createPolygon(xyz_trian)
+#fuse, map = gmsh.model.occ.fuse([(2, triangle)], fuse)
 
 #tags, coord, param = gmsh.model.occ.getNodes(2, hexagon, includeBoundary = True)
 #norm = 
@@ -88,9 +88,6 @@ copy = gmsh.model.occ.copy(fuse)
 gmsh.model.occ.mirror(copy, 0, 1, 0, 0)
 fuse, map = gmsh.model.occ.fuse(fuse, copy)
 
-#copy = gmsh.model.occ.copy(fuse)
-#gmsh.model.occ.dilate(copy, 0, 0, 0, 0.9, 0.9, 0.9)
-
 gmsh.model.occ.synchronize()
 
 gmsh.model.occ.remove_all_duplicates
@@ -101,37 +98,83 @@ for i in range(len(fuse)):
     dim_i, tag_i = fuse[i]
     dims_ext.append(dim_i)
     tags_ext.append(tag_i)
-print(tags_ext)
 ext = gmsh.model.occ.addSurfaceLoop(tags_ext)
 
 gmsh.model.occ.synchronize()
 
-#dims_dilate = []
-#tags_dilate = []
-#for i in range(len(copy)):
-#    dim_i, tag_i = copy[i]
-#    dims_dilate.append(dim_i)
-#    tags_dilate.append(tag_i)
-#dilate = gmsh.model.occ.addSurfaceLoop(tags_dilate)
+'''
+dims_dilate = []
+tags_dilate = []
+for i in range(len(copy)):
+    dim_i, tag_i = copy[i]
+    dims_dilate.append(dim_i)
+    tags_dilate.append(tag_i)
+dilate = gmsh.model.occ.addSurfaceLoop(tags_dilate)
+'''
 
-#gmsh.model.addPhysicalGroup(2, tags, 1)
+#gmsh.model.addPhysicalGroup(2, tags_ext, 1)
 
 #rve = gmsh.model.occ.addVolume([ext, dilate])
 rve = gmsh.model.occ.addVolume([ext])
+copy = gmsh.model.occ.copy([(3, rve)])
+gmsh.model.occ.dilate(copy, 0, 0, 0, 0.7, 0.7, 0.7)
+offset, map = gmsh.model.occ.cut([(3, rve)], copy)
+
+copy = gmsh.model.occ.copy(offset)
+gmsh.model.occ.translate(copy, x_hex*2, y_hex*2, z_hex*2)
+#fuse, map = gmsh.model.occ.fuse(offset, copy)
+
+copy = gmsh.model.occ.copy(offset)
+gmsh.model.occ.translate(copy, x_hex*2, y_hex*2, -z_hex*2)
+#fuse, map = gmsh.model.occ.fuse(offset, copy)
+
+copy = gmsh.model.occ.copy(offset)
+gmsh.model.occ.translate(copy, x_hex*2, -y_hex*2, z_hex*2)
+#fuse, map = gmsh.model.occ.fuse(offset, copy)
+
+copy = gmsh.model.occ.copy(offset)
+gmsh.model.occ.translate(copy, x_hex*2, -y_hex*2, -z_hex*2)
+#fuse, map = gmsh.model.occ.fuse(offset, copy)
+
+copy = gmsh.model.occ.copy(offset)
+gmsh.model.occ.translate(copy, -x_hex*2, y_hex*2, z_hex*2)
+#fuse, map = gmsh.model.occ.fuse(offset, copy)
+
+copy = gmsh.model.occ.copy(offset)
+gmsh.model.occ.translate(copy, -x_hex*2, y_hex*2, -z_hex*2)
+#fuse, map = gmsh.model.occ.fuse(offset, copy)
+
+copy = gmsh.model.occ.copy(offset)
+gmsh.model.occ.translate(copy, -x_hex*2, -y_hex*2, z_hex*2)
+#fuse, map = gmsh.model.occ.fuse(offset, copy)
+
+copy = gmsh.model.occ.copy(offset)
+gmsh.model.occ.translate(copy, -x_hex*2, -y_hex*2, -z_hex*2)
+#fuse, map = gmsh.model.occ.fuse(offset, copy)
+
+vt = gmsh.model.occ.getEntities(3)
+
+vt, map = gmsh.model.occ.fuse(vt[0:1], vt[1:])
+print(vt)
+gmsh.model.occ.synchronize()
+
+gmsh.model.occ.addBox(-np.sqrt(2)*L, -np.sqrt(2)*L, -np.sqrt(2)*L, 2*np.sqrt(2)*L, 2*np.sqrt(2)*L, 2*np.sqrt(2)*L, 10)
+rve, map = gmsh.model.occ.intersect(vt, [(3, 10)])
+print(rve)
+
+gmsh.model.occ.remove_all_duplicates
+
+gmsh.model.addPhysicalGroup(3, [1])
 
 gmsh.model.occ.synchronize()
 
-gmsh.model.addPhysicalGroup(3, [rve], 2)
-
-gmsh.model.occ.synchronize()
-
-mesh_size_factor = 1e-1
+mesh_size_factor = 0.1
 p = gmsh.model.occ.getEntities(0)
 gmsh.model.mesh.setSize(p, mesh_size_factor)
 
 gmsh.model.occ.synchronize()
 
-gmsh.model.mesh.generate(3)
+gmsh.model.mesh.generate()
 
 gmsh.write("sp-solid.inp")
 

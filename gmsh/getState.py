@@ -37,7 +37,7 @@ def getState(file, out_name, P, FILE_NAME):
             S22 += evol[k]*item.data[1]
             S33 += evol[k]*item.data[2]
             S12 += evol[k]*item.data[3]
-    	    k += 1
+            k += 1
     
     with open(out_name + '.txt', 'w') as fl:
         fl.write('E11='+str(E11)+'\n')

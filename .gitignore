@@ -16,6 +16,14 @@
 *.ipm
 *.dmp
 *.txt
+*.023
+*.SMABulk
+*.SMAFocus
+*.cid
+*.lck
+*.mdl
+*.stt
+*.env
 
 # ignore plt
 *.pdf
@@ -32,3 +40,7 @@
 
 # ignore local folder
 gmsh/backup/
+PBC_2D/
+PBC_3D/
+PBC_novtx_2D/
+PBC_novtx_3D/
